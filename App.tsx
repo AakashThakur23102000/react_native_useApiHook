@@ -1,118 +1,75 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import { View, Text, Button } from 'react-native'
+import React from 'react'
+import useApiHook from './src/api/useApiHook'
+import { DEMO_API_FUNC, SECOND_API_FUNC } from './src/api/ApiFunctions'
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+const App = () => {
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+  const {
+    apiData: firstApiData,
+    loadingState: firstApiLoading,
+    refetchingApiFunction: firstRefetchFunction,
+    apiError: firstApiError
+  } = useApiHook({
+    apiCallingFunction: DEMO_API_FUNC,
+    apiPayload: [{ dw: "dw" }],
+    runOnTimeOfScreenMount: true,
+    initialLoadingState: true,
+    apiCustomReturnFunction: (data: any) => {
+      return data;
+    },
+    onErrorReturnFunction: (err: any) => {
+      return err
+    },
+  })
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+  const {
+    apiData: secondApiData,
+    loadingState: secondApiLoading,
+    refetchingApiFunction: secondRefetchFunction,
+    apiError: secondApiError
+  } = useApiHook({
+    apiCallingFunction: SECOND_API_FUNC,
+    apiPayload: [{ dw: "dw" }],
+    runOnTimeOfScreenMount: true,
+    initialLoadingState: true,
+    apiCustomReturnFunction: (data: any) => {
+      return data;
+    },
+    onErrorReturnFunction: (err: any) => {
+      return err
+    },
+  })
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+  console.log("Parent loading First----  >", firstApiLoading, " - ", firstApiData, "---", firstApiError);
+  console.log("Parent loading Second----  >", secondApiLoading, " - ", secondApiData, "---", secondApiError);
+  console.log("--------------- Parent Component Rendering Numbers ---------------")
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
+    <View>
+      <Text>App</Text>
+      <Button
+        title='Refetch api'
+        onPress={async () => {
+          console.log("Second time then api and then console last")
+          await secondRefetchFunction(
+            true,
+            [{ name: "hello" }],
+            (data: any) => {
+              console.log("Called")
+              return data
+            },
+            (err: any) => {
+              return err
+            })
+
+          console.log("console.log at last")
+        }}
       />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
+    </View>
+  )
 }
 
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
-
-export default App;
+export default App
